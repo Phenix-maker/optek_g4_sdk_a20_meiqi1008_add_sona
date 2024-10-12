@@ -1,0 +1,13 @@
+*********************************************************************************************************
+Ver:V1.0.1
+Date:20240126
+****************************************
+optekhv4 sbc encode
+no msbc codec
+
+use below api to get version info:
+	const char *sbc_encode_data_get(void);
+	const char *sbc_encode_time_get(void);
+	const char *sbc_encode_version_get(void);
+
+****************************************

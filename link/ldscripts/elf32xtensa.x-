@@ -1,0 +1,982 @@
+/* This linker script generated from xt-genldscripts.tpp for LSP nort */
+/* Linker Script for default link */
+
+/*
+	flash version
+*/
+
+
+MEMORY
+{
+	/*optek gen4 soc*/
+	/*section    len
+	  iram       0x30000(192K)
+	  irom       0x8000(32K)
+	  drom       0x4000(16K)
+	  dram       0x78000(480K)
+	  psram      (depends on chip)
+	*/
+
+	i_ram_vector :                 org = 0x40000000, len = 0x400
+	i_ram :                        org = 0x40000400, len = 0x2FC00
+
+	i_rom :                        org = 0x48000000, len = 0x60000
+	d_rom :                        org = 0x3F800000, len = 0x40000
+
+	d_ram :                        org = 0x3FDC0000, len = (0x78000-0x400)
+	d_ram_stack :                  org = 0x3FDC0000+0x78000-0x400, len = 0x400
+
+	/* iram */
+/*	rom_boot :                     org = 0x40000400, len = 0xC00
+	rom_vector :                   org = 0x40001000, len = 0x400
+	rom_text :                     org = 0x40001400, len = 0x100000 - 0x1000
+*/
+
+
+	/*text ram of fpga only*/
+/*	rom_boot :                     org = 0x6C000000, len = 0xC00
+	rom_vector :                   org = 0x6C000C00, len = 0x400
+	rom_text :                     org = 0x6C001000, len = 0x100000 - 0x1000
+*/
+
+
+	/*sFlash*/
+/*	rom_boot :                     org = 0x6A000000, len = 0xC00
+	rom_vector :                   org = 0x6A000C00, len = 0x400
+	rom_text :                     org = 0x6A001000, len = 0x100000 - 0x1000
+*/
+
+	/*PSRAM*/
+	rom_boot :                     org = 0x70000000, len = 0xC00
+	rom_vector :                   org = 0x70000C00, len = 0x400
+	rom_text :                     org = 0x70001000, len = 0x100000 - 0x1000
+	xa_libc_text :                 org = 0x70eaa400, len = 0x19c0
+
+
+	WindowVectors.text_seg :              org = 0x40000000, len = 0x178
+	sram1_seg :                           org = (0x40000000 + 0x0000017C-0x4), len = 0x4
+	Level2InterruptVector.text_seg :      org = (0x40000000 + 0x0000017C), len = 0x1C
+	sram3_seg :                           org = (0x40000000 + 0x000001a0-0x8), len = 0x8
+	Level3InterruptVector.text_seg :      org = (0x40000000 + 0x000001a0), len = 0x38
+	sram5_seg :                           org = (0x40000000 + 0x000001e0-0x8), len = 0x8
+	Level4InterruptVector.text_seg :      org = (0x40000000 + 0x000001e0), len = 0x38
+
+
+	sram7_seg :                           org = (0x40000000 + 0x00000220-0x8), len = 0x8
+	Level5InterruptVector.text_seg :      org = (0x40000000 + 0x00000220), len = 0x38
+
+/*
+	sram9_seg :                           org = (0x40000000 + 0x00000200-0x8), len = 0x8
+	DebugExceptionVector.text_seg :       org = (0x40000000 + 0x00000200), len = 0x38	
+*/
+
+	sram11_seg :                          org = (0x40000000 + 0x00000260-0x8), len = 0x8
+	NMIExceptionVector.text_seg :         org = (0x40000000 + 0x00000260), len = 0x38	
+	sram13_seg :                          org = (0x40000000 + 0x0000029c-0x4), len = 0x4
+	KernelExceptionVector.text_seg :      org = (0x40000000 + 0x0000029c), len = 0x1C
+	sram15_seg :                          org = (0x40000000 + 0x000002bc-0x4), len = 0x4
+	UserExceptionVector.text_seg :        org = (0x40000000 + 0x000002bc), len = 0x1C
+	sram17_seg :                          org = (0x40000000 + 0x000002dc-0x4), len = 0x4
+	DoubleExceptionVector.text_seg :      org = (0x40000000 + 0x000002dc), len = 0x1C
+
+}
+
+
+/* Default entry point: */
+ENTRY(_ResetVector)
+
+
+GROUP (
+
+/*common libs*/
+/*
+libgdbio.a 
+libhal.a 
+lib/libc.a 
+lib/libgcc.a 
+*/
+
+/*lib/libgdbio.a*/
+lib/libhal.a 
+/*
+lib/memcmp.o
+lib/memset.o
+lib/memcpy.o
+lib/rand.o
+*/
+lib/libc.a 
+lib/libgcc.a 
+
+
+/*customer libs*/
+lib/Optek_lib_freeRTOS.a
+/*lib/Optek_lib_freeRTOS_debug.a*/
+
+
+/*lib/libxa_ddplus71_dec.a*/
+xa_ddplus71_dec.a
+
+)
+
+
+SECTIONS
+{
+	.boot_text :
+	{
+		*(.ResetVector.text);
+		. = ALIGN(4);
+		*(.ResetVector.literal);
+		. = ALIGN(4);
+
+		*(.flash_boot_text.literal);
+		. = ALIGN(4);
+		*(.flash_boot_text);
+
+		*(.boot_upgrade_text);
+		. = ALIGN(4);
+		*(.boot_upgrade_text.literal);
+		. = ALIGN(4);
+	} > rom_boot
+
+
+	.vector :
+	{
+	} > rom_vector
+
+
+/*	.WindowVectors.text :*/
+	.WindowVectors.text : AT (LOADADDR(.vector) + SIZEOF(.vector))
+	{
+		__TEXT_ROM_START1 = LOADADDR(.vector) + SIZEOF(.vector);
+		__TEXT_START1 = ABSOLUTE(.);
+		_WindowVectors_text_start = ABSOLUTE(.);
+		*(.WindowVectors.text)
+		. = ALIGN(4);
+		_WindowVectors_text_end = ABSOLUTE(.);
+		__TEXT_START1_END = ABSOLUTE(.);
+	} > WindowVectors.text_seg
+
+/*	.Level2InterruptVector.literal :*/
+	.Level2InterruptVector.literal : AT (LOADADDR(.WindowVectors.text) + SIZEOF(.WindowVectors.text))
+	{
+		__TEXT_ROM_START2 = LOADADDR(.WindowVectors.text) + SIZEOF(.WindowVectors.text);
+		__TEXT_START2 = ABSOLUTE(.);
+		_Level2InterruptVector_literal_start = ABSOLUTE(.);
+		*(.Level2InterruptVector.literal)
+		. = ALIGN(4);
+		_Level2InterruptVector_literal_end = ABSOLUTE(.);
+		__TEXT_START2_END = ABSOLUTE(.);
+	} > sram1_seg
+
+/*	.Level2InterruptVector.text :*/
+	.Level2InterruptVector.text : AT (LOADADDR(.Level2InterruptVector.literal) + SIZEOF(.Level2InterruptVector.literal))
+	{
+		__TEXT_ROM_START3 = LOADADDR(.Level2InterruptVector.literal) + SIZEOF(.Level2InterruptVector.literal);
+		__TEXT_START3 = ABSOLUTE(.);
+		_Level2InterruptVector_text_start = ABSOLUTE(.);
+		*(.Level2InterruptVector.text)
+		. = ALIGN(4);
+		_Level2InterruptVector_text_end = ABSOLUTE(.);
+		__TEXT_START3_END = ABSOLUTE(.);
+	} > Level2InterruptVector.text_seg
+
+/*	.Level3InterruptVector.literal :*/
+	.Level3InterruptVector.literal : AT (LOADADDR(.Level2InterruptVector.text) + SIZEOF(.Level2InterruptVector.text))
+	{
+		__TEXT_ROM_START4 = LOADADDR(.Level2InterruptVector.text) + SIZEOF(.Level2InterruptVector.text);
+		__TEXT_START4 = ABSOLUTE(.);
+		_Level3InterruptVector_literal_start = ABSOLUTE(.);
+		*(.Level3InterruptVector.literal)
+		. = ALIGN(4);
+		_Level3InterruptVector_literal_end = ABSOLUTE(.);
+		__TEXT_START4_END = ABSOLUTE(.);
+	} > sram3_seg
+
+/*	.Level3InterruptVector.text :*/
+	.Level3InterruptVector.text : AT (LOADADDR(.Level3InterruptVector.literal) + SIZEOF(.Level3InterruptVector.literal))
+	{
+		__TEXT_ROM_START5 = LOADADDR(.Level3InterruptVector.literal) + SIZEOF(.Level3InterruptVector.literal);
+		__TEXT_START5 = ABSOLUTE(.);
+		_Level3InterruptVector_text_start = ABSOLUTE(.);
+		*(.Level3InterruptVector.text)
+		. = ALIGN(4);
+		_Level3InterruptVector_text_end = ABSOLUTE(.);
+		__TEXT_START5_END = ABSOLUTE(.);
+	} > Level3InterruptVector.text_seg
+
+/*	.Level4InterruptVector.literal :*/
+	.Level4InterruptVector.literal : AT (LOADADDR(.Level3InterruptVector.text) + SIZEOF(.Level3InterruptVector.text))
+	{
+		__TEXT_ROM_START6 = LOADADDR(.Level3InterruptVector.text) + SIZEOF(.Level3InterruptVector.text);
+		__TEXT_START6 = ABSOLUTE(.);
+		_Level4InterruptVector_literal_start = ABSOLUTE(.);
+		*(.Level4InterruptVector.literal)
+		. = ALIGN(4);
+		_Level4InterruptVector_literal_end = ABSOLUTE(.);
+		__TEXT_START6_END = ABSOLUTE(.);
+	} > sram5_seg
+
+/*	.Level4InterruptVector.text :*/
+	.Level4InterruptVector.text : AT (LOADADDR(.Level4InterruptVector.literal) + SIZEOF(.Level4InterruptVector.literal))
+	{
+		__TEXT_ROM_START7 = LOADADDR(.Level4InterruptVector.literal) + SIZEOF(.Level4InterruptVector.literal);
+		__TEXT_START7 = ABSOLUTE(.);
+		_Level4InterruptVector_text_start = ABSOLUTE(.);
+		*(.Level4InterruptVector.text)
+		. = ALIGN(4);
+		_Level4InterruptVector_text_end = ABSOLUTE(.);
+		__TEXT_START7_END = ABSOLUTE(.);
+	} > Level4InterruptVector.text_seg
+
+/*	.Level5InterruptVector.literal :*/
+	.Level5InterruptVector.literal : AT (LOADADDR(.Level4InterruptVector.text) + SIZEOF(.Level4InterruptVector.text))
+	{
+		__TEXT_ROM_START8 = LOADADDR(.Level4InterruptVector.text) + SIZEOF(.Level4InterruptVector.text);
+		__TEXT_START8 = ABSOLUTE(.);
+		_Level5InterruptVector_literal_start = ABSOLUTE(.);
+		*(.Level5InterruptVector.literal)
+		. = ALIGN(4);
+		_Level5InterruptVector_literal_end = ABSOLUTE(.);
+		__TEXT_START8_END = ABSOLUTE(.);
+	} > sram7_seg
+
+/*	.Level5InterruptVector.text :*/
+	.Level5InterruptVector.text : AT (LOADADDR(.Level5InterruptVector.literal) + SIZEOF(.Level5InterruptVector.literal))
+	{
+		__TEXT_ROM_START9 = LOADADDR(.Level5InterruptVector.literal) + SIZEOF(.Level5InterruptVector.literal);
+		__TEXT_START9 = ABSOLUTE(.);
+		_Level5InterruptVector_text_start = ABSOLUTE(.);
+		*(.Level5InterruptVector.text)
+		. = ALIGN(4);
+		_Level5InterruptVector_text_end = ABSOLUTE(.);
+		__TEXT_START9_END = ABSOLUTE(.);
+	} > Level5InterruptVector.text_seg
+
+/*	.DebugExceptionVector.literal :*/
+/*	.DebugExceptionVector.literal : AT (LOADADDR(.Level5InterruptVector.text) + SIZEOF(.Level5InterruptVector.text))*/
+/*	.DebugExceptionVector.literal : AT (LOADADDR(.Level4InterruptVector.text) + SIZEOF(.Level4InterruptVector.text))*/
+/*	{*/
+/*		__TEXT_ROM_START10 = LOADADDR(.Level5InterruptVector.text) + SIZEOF(.Level5InterruptVector.text);*/
+/*		__TEXT_ROM_START10 = LOADADDR(.Level4InterruptVector.text) + SIZEOF(.Level4InterruptVector.text);
+		__TEXT_START10 = ABSOLUTE(.);
+		_DebugExceptionVector_literal_start = ABSOLUTE(.);
+		*(.DebugExceptionVector.literal)
+		. = ALIGN(4);
+		_DebugExceptionVector_literal_end = ABSOLUTE(.);
+		__TEXT_START10_END = ABSOLUTE(.);
+	} > sram9_seg*/
+
+/*	.DebugExceptionVector.text :*/
+/*	.DebugExceptionVector.text : AT (LOADADDR(.DebugExceptionVector.literal) + SIZEOF(.DebugExceptionVector.literal))*/
+/*	{
+		__TEXT_ROM_START11 = LOADADDR(.DebugExceptionVector.literal) + SIZEOF(.DebugExceptionVector.literal);
+		__TEXT_START11 = ABSOLUTE(.);
+		_DebugExceptionVector_text_start = ABSOLUTE(.);
+		*(.DebugExceptionVector.text)
+		. = ALIGN(4);
+		_DebugExceptionVector_text_end = ABSOLUTE(.);
+		__TEXT_START11_END = ABSOLUTE(.);
+	} > DebugExceptionVector.text_seg*/
+
+/*	.NMIExceptionVector.literal :*/
+/*	.NMIExceptionVector.literal : AT (LOADADDR(.DebugExceptionVector.text ) + SIZEOF(.DebugExceptionVector.text))*/
+	.NMIExceptionVector.literal : AT (LOADADDR(.Level5InterruptVector.text ) + SIZEOF(.Level5InterruptVector.text))
+	{
+/*		__TEXT_ROM_START12 = LOADADDR(.DebugExceptionVector.text) + SIZEOF(.DebugExceptionVector.text);*/
+		__TEXT_ROM_START12 = LOADADDR(.Level5InterruptVector.text) + SIZEOF(.Level5InterruptVector.text);
+		__TEXT_START12 = ABSOLUTE(.);
+		_NMIExceptionVector_literal_start = ABSOLUTE(.);
+		*(.NMIExceptionVector.literal)
+		. = ALIGN(4);
+		_NMIExceptionVector_literal_end = ABSOLUTE(.);
+		__TEXT_START12_END = ABSOLUTE(.);
+	} > sram11_seg
+
+/*	.NMIExceptionVector.text :*/
+	.NMIExceptionVector.text : AT (LOADADDR(.NMIExceptionVector.literal) + SIZEOF(.NMIExceptionVector.literal))
+	{
+		__TEXT_ROM_START13 = LOADADDR(.NMIExceptionVector.literal) + SIZEOF(.NMIExceptionVector.literal);
+		__TEXT_START13 = ABSOLUTE(.);
+		_NMIExceptionVector_text_start = ABSOLUTE(.);
+		*(.NMIExceptionVector.text)
+		. = ALIGN(4);
+		_NMIExceptionVector_text_end = ABSOLUTE(.);
+		__TEXT_START13_END = ABSOLUTE(.);
+	} > NMIExceptionVector.text_seg
+
+/*	.KernelExceptionVector.literal :*/
+	.KernelExceptionVector.literal : AT (LOADADDR(.NMIExceptionVector.text ) + SIZEOF(.NMIExceptionVector.text))
+	{
+		__TEXT_ROM_START14 = LOADADDR(.NMIExceptionVector.text) + SIZEOF(.NMIExceptionVector.text);
+		__TEXT_START14 = ABSOLUTE(.);
+		_KernelExceptionVector_literal_start = ABSOLUTE(.);
+		*(.KernelExceptionVector.literal)
+		. = ALIGN(4);
+		_KernelExceptionVector_literal_end = ABSOLUTE(.);
+		__TEXT_START14_END = ABSOLUTE(.);
+	} > sram13_seg
+
+/*	.KernelExceptionVector.text :*/
+	.KernelExceptionVector.text : AT (LOADADDR(.KernelExceptionVector.literal) + SIZEOF(.KernelExceptionVector.literal))
+	{
+		__TEXT_ROM_START15 = LOADADDR(.KernelExceptionVector.literal) + SIZEOF(.KernelExceptionVector.literal);
+		__TEXT_START15 = ABSOLUTE(.);
+		_KernelExceptionVector_text_start = ABSOLUTE(.);
+		*(.KernelExceptionVector.text)
+		. = ALIGN(4);
+		_KernelExceptionVector_text_end = ABSOLUTE(.);
+		__TEXT_START15_END = ABSOLUTE(.);
+	} > KernelExceptionVector.text_seg
+
+/*	.UserExceptionVector.literal :*/
+	.UserExceptionVector.literal : AT (LOADADDR(.KernelExceptionVector.text) + SIZEOF(.KernelExceptionVector.text))
+	{
+		__TEXT_ROM_START16 = LOADADDR(.KernelExceptionVector.text) + SIZEOF(.KernelExceptionVector.text);
+		__TEXT_START16 = ABSOLUTE(.);
+		_UserExceptionVector_literal_start = ABSOLUTE(.);
+		*(.UserExceptionVector.literal)
+		. = ALIGN(4);		
+		_UserExceptionVector_literal_end = ABSOLUTE(.);
+		__TEXT_START16_END = ABSOLUTE(.);
+	} > sram15_seg
+
+/*	.UserExceptionVector.text :*/
+	.UserExceptionVector.text : AT (LOADADDR(.UserExceptionVector.literal) + SIZEOF(.UserExceptionVector.literal))
+	{
+		__TEXT_ROM_START17 = LOADADDR(.UserExceptionVector.literal) + SIZEOF(.UserExceptionVector.literal);
+		__TEXT_START17 = ABSOLUTE(.);
+		_UserExceptionVector_text_start = ABSOLUTE(.);
+		*(.UserExceptionVector.text)
+		. = ALIGN(4);
+		_UserExceptionVector_text_end = ABSOLUTE(.);
+		__TEXT_START17_END = ABSOLUTE(.);
+	} > UserExceptionVector.text_seg
+
+/*	.DoubleExceptionVector.literal :*/
+	.DoubleExceptionVector.literal : AT (LOADADDR(.UserExceptionVector.text) + SIZEOF(.UserExceptionVector.text))
+	{
+		__TEXT_ROM_START18 = LOADADDR(.UserExceptionVector.text) + SIZEOF(.UserExceptionVector.text);
+		__TEXT_START18 = ABSOLUTE(.);
+		_DoubleExceptionVector_literal_start = ABSOLUTE(.);
+		*(.DoubleExceptionVector.literal)
+		. = ALIGN(4);
+		_DoubleExceptionVector_literal_end = ABSOLUTE(.);
+		__TEXT_START18_END = ABSOLUTE(.);
+	} > sram17_seg
+
+/*	.DoubleExceptionVector.text :*/
+	.DoubleExceptionVector.text : AT (LOADADDR(.DoubleExceptionVector.literal ) + SIZEOF(.DoubleExceptionVector.literal))
+	{
+		__TEXT_ROM_START19 = LOADADDR(.DoubleExceptionVector.literal) + SIZEOF(.DoubleExceptionVector.literal);
+		__TEXT_START19 = ABSOLUTE(.);
+		_DoubleExceptionVector_text_start = ABSOLUTE(.);
+		*(.DoubleExceptionVector.text)
+		. = ALIGN(4);
+		_DoubleExceptionVector_text_end = ABSOLUTE(.);
+		__TEXT_START19_END = ABSOLUTE(.);
+	} > DoubleExceptionVector.text_seg
+
+
+
+/*	.vector_text_msg :*/
+	.vector_text_msg (LOADADDR(.DoubleExceptionVector.text ) + SIZEOF(.DoubleExceptionVector.text)) :
+	{
+		. = ALIGN(4);
+		_vector_text_msg_start = ABSOLUTE(.);
+
+		LONG(_WindowVectors_text_start);
+		LONG(_WindowVectors_text_end);
+		LONG(LOADADDR(.WindowVectors.text));
+
+		LONG(_Level2InterruptVector_literal_start);
+		LONG(_Level2InterruptVector_literal_end);
+		LONG(LOADADDR(.Level2InterruptVector.literal));
+
+		LONG(_Level2InterruptVector_text_start);
+		LONG(_Level2InterruptVector_text_end);
+		LONG(LOADADDR(.Level2InterruptVector.text));
+
+		LONG(_Level3InterruptVector_literal_start );
+		LONG(_Level3InterruptVector_literal_end);
+		LONG(LOADADDR(.Level3InterruptVector.literal));
+
+		LONG(_Level3InterruptVector_text_start );
+		LONG(_Level3InterruptVector_text_end );
+		LONG(LOADADDR(.Level3InterruptVector.text));
+
+		LONG(_Level4InterruptVector_literal_start);
+		LONG(_Level4InterruptVector_literal_end);
+		LONG(LOADADDR(.Level4InterruptVector.literal));
+
+		LONG(_Level4InterruptVector_text_start);
+		LONG(_Level4InterruptVector_text_end);
+		LONG(LOADADDR(.Level4InterruptVector.text));
+
+		LONG(_Level5InterruptVector_literal_start);
+		LONG(_Level5InterruptVector_literal_end);
+		LONG(LOADADDR(.Level5InterruptVector.literal));
+
+		LONG(_Level5InterruptVector_text_start);
+		LONG(_Level5InterruptVector_text_end);
+		LONG(LOADADDR(.Level5InterruptVector.text));
+
+/*
+		LONG(_DebugExceptionVector_literal_start);
+		LONG(_DebugExceptionVector_literal_end);
+		LONG(LOADADDR(.DebugExceptionVector.literal));
+
+		LONG(_DebugExceptionVector_text_start);
+		LONG(_DebugExceptionVector_text_end);
+		LONG(LOADADDR(.DebugExceptionVector.text));
+*/
+
+		LONG(_NMIExceptionVector_literal_start);
+		LONG(_NMIExceptionVector_literal_end);
+		LONG(LOADADDR(.NMIExceptionVector.literal));
+
+		LONG(_NMIExceptionVector_text_start);
+		LONG(_NMIExceptionVector_text_end);
+		LONG(LOADADDR(.NMIExceptionVector.text));
+
+		LONG(_KernelExceptionVector_literal_start );
+		LONG(_KernelExceptionVector_literal_end );
+		LONG(LOADADDR(.KernelExceptionVector.literal));
+
+		LONG(_KernelExceptionVector_text_start);
+		LONG(_KernelExceptionVector_text_end);
+		LONG(LOADADDR(.KernelExceptionVector.text));	
+
+		LONG(_UserExceptionVector_literal_start);
+		LONG(_UserExceptionVector_literal_end);
+		LONG(LOADADDR(.UserExceptionVector.literal));
+
+		LONG(_UserExceptionVector_text_start );
+		LONG(_UserExceptionVector_text_end);
+		LONG(LOADADDR(.UserExceptionVector.text));
+
+		LONG(_DoubleExceptionVector_literal_start);
+		LONG(_DoubleExceptionVector_literal_end);
+		LONG(LOADADDR(.DoubleExceptionVector.literal));	
+
+		LONG(_DoubleExceptionVector_text_start);
+		LONG(_DoubleExceptionVector_text_end);
+		LONG(LOADADDR(.DoubleExceptionVector.text));
+
+		LONG(0);
+		LONG(0);
+		LONG(0);
+
+		. = ALIGN(4);
+		_vector_text_msg_end = ABSOLUTE(.);
+/*	} > srom*/
+	} > rom_vector
+
+	.btdm_rodata :
+	{
+		. = ALIGN(4);
+		__TEXT_START34 = ABSOLUTE(.);
+/*
+		Debug/lib_btdm5.a (.rodata)
+*/
+/*		/FPGA/lib_btdm/bin/Optek_HiFi3_Dev_02/Debug/lib_btdm.a (.rodata)*/
+
+/*		../../../../lib_btdm/bin/Optek_HiFi3_Dev_02/Debug/lib_btdm.a (.rodata)*/
+
+		. = ALIGN(4);
+		__TEXT_START34_END = ABSOLUTE(.);
+	} > rom_text
+/*	} > btdm_rom*/
+
+
+/*	.codec_rodata :*/
+/*	.codec_rodata (LOADADDR(.btdm_rodata) + SIZEOF(.btdm_rodata)) :
+	{
+		. = ALIGN(4);
+		__TEXT_START34 = ABSOLUTE(.);
+		__codec_rodata_rom_start = LOADADDR(.btdm_rodata) + SIZEOF(.btdm_rodata);
+		__codec_rodata_ram_start = ABSOLUTE(.);
+
+		lib/libxa_mp3_dec.a (.rodata)
+
+		. = ALIGN(4);
+		__codec_rodata_ram_end = ABSOLUTE(.);
+		
+	} > codec_memory_rodata
+*/
+
+
+	/*use 0xd260 bytes of space*/
+	.xa_ddplus71_dec_lib_text :
+	{
+		. = ALIGN(16);
+/*		__xa_ddplus71_dec_lib_text_rom_start = LOADADDR(.rom_dummy_rodata2) + SIZEOF(.rom_dummy_rodata2);*/
+		__xa_ddplus71_dec_text_start = ABSOLUTE(.);
+
+		xa_ddplus71_dec.a (.literal .text)
+/*		*(.xa_ddplus71_dec_lib_text)*/
+
+		. = ALIGN(16);
+		__xa_ddplus71_dec_lib_text_end = ABSOLUTE(.);
+/*	} > xa_ddplus71_dec_lib_text*/
+	} > i_ram
+
+	/*use 0x5a50 bytes of space*/
+	.xa_ddplus71_dec_lib_rodata :
+	{
+		. = ALIGN(16);
+/*		__xa_ddplus71_dec_lib_rodata_rom_start = LOADADDR(.rom_dummy_rodata2) + SIZEOF(.rom_dummy_rodata2);*/
+		__xa_ddplus71_dec_lib_rodata_start = ABSOLUTE(.);
+
+		xa_ddplus71_dec.a (.rodata .rodata.*)
+/*		*(.xa_ddplus71_dec_lib_rodata)*/
+
+		. = ALIGN(16);
+		__xa_ddplus71_dec_lib_text_end = ABSOLUTE(.);
+/*	} > xa_ddplus71_dec_lib_rodata*/
+	} > d_ram
+
+
+	.rom_dummy_rodata1 :
+	{
+		*(.rom_dummy_rodata1)
+/*	} > rom_libc_text*/
+	} > xa_libc_text
+
+	.xa_libc_text :
+/*	.xa_libc_text (LOADADDR(.rom_dummy_rodata1) + SIZEOF(.rom_dummy_rodata1)) :*/
+/*	.xa_libc_text : AT (LOADADDR(.rom_dummy_rodata1) + SIZEOF(.rom_dummy_rodata1))*/
+	{
+		. = ALIGN(16);
+		__xa_libc_text_rom_start = LOADADDR(.rom_dummy_rodata1) + SIZEOF(.rom_dummy_rodata1);
+		__xa_libc_text_start = ABSOLUTE(.);
+
+		*(.xa_libc_text)
+
+/*		lib/libc.a (.literal .text)
+		lib/libgcc.a (.literal .text)
+		lib/libgdbio.a (.literal .text)
+		lib/libhal.a (.literal .text)
+*/
+
+
+		/* from libc.a and from libgcc.a */
+/*		lib/memcmp.o (.literal .text)
+		lib/memmove.o (.literal .text)
+		lib/memcpy.o (.literal .text)
+		lib/memset.o (.literal .text)
+
+
+		lib/_addsubdf3.o (.literal .text)
+		lib/_muldf3.o (.literal .text)
+		lib/_cmpdf2.o (.literal .text)
+		lib/_fixdfsi.o (.literal .text)
+		lib/_fixdfdi.o (.literal .text)
+		lib/_divdi3.o (.literal .text)
+		lib/vec_memcpy.o (.literal .text)
+		lib/vec_memset.o (.literal .text)
+		lib/softfloat_cmn_df.o (.literal .text)
+		lib/softfloat_div_df.o (.literal .text)
+
+		lib/_divsi3.o (.literal .text)
+		lib/_modsi3.o (.literal .text)
+		lib/_udivsi3.o (.literal .text)
+		lib/_umodsi3.o (.literal .text)
+		lib/_umulsidi3.o (.literal .text)
+		lib/_ashldi3.o (.literal .text)
+		lib/_floatsidf.o (.literal .text)
+		lib/softfloat_cmn.o (.literal .text)
+		lib/softfloat_cmn_div.o (.literal .text)
+*/
+
+		/*it is used by the function `datmos_downmixer_init',
+		calculate_proper_downmix_mode' and
+		datmos_downmixer_get_num_of_out_channels'*/
+		/*source/common/dpf_log.o (.literal .text)*/
+/*		lib/dpf_log.o (.literal .text)*/
+
+/*		KEEP(*(.init))
+		KEEP(*(.init.literal))
+*/
+		. = ALIGN(16);
+
+		__xa_libc_text_end = ABSOLUTE(.);
+/*	} > rom_libc_text*/
+	} > xa_libc_text
+	
+	
+	.rom_dummy_rodata4 :
+	{
+		*(.rom_dummy_rodata4)
+	} > rom_text
+
+/*	.all_rodata :*/
+	.all_rodata (LOADADDR(.rom_dummy_rodata4) + SIZEOF(.rom_dummy_rodata4)) :
+/*	.all_rodata : AT (LOADADDR(.rom_dummy_rodata4) + SIZEOF(.rom_dummy_rodata4))*/
+	{
+		. = ALIGN(16);
+		__all_rodata_rom_start = LOADADDR(.rom_dummy_rodata4) + SIZEOF(.rom_dummy_rodata4);
+		__all_rodata_ram_start = ABSOLUTE(.);
+
+		*(.rodata)
+		*(.rodata.*)
+
+		*(.clib.rodata)
+		*(.clib.rodata.*)
+
+		*(.rtos.rodata)
+		*(.rtos.rodata.*)
+
+		. = ALIGN(16);
+		__all_rodata_ram_end = ABSOLUTE(.);
+
+	} > rom_text
+/*	} > d_ram*/
+/*	} > all_data*/
+
+
+/*	.btdm_data :*/
+	.btdm_data (LOADADDR(.all_rodata) + SIZEOF(.all_rodata)) :
+/*	.btdm_data : AT (LOADADDR(.all_rodata) + SIZEOF(.all_rodata))*/
+	{
+		. = ALIGN(4);
+		__btdm_data_rom_start = LOADADDR(.all_rodata) + SIZEOF(.all_rodata);
+		__btdm_data_start = ABSOLUTE(.);
+/*
+		Debug/lib_btdm5.a (.data)
+*/
+/*		/FPGA/lib_btdm/bin/Optek_HiFi3_Dev_02/Debug/lib_btdm.a (.data)*/
+
+/*		../../../../lib_btdm/bin/Optek_HiFi3_Dev_02/Debug/lib_btdm.a (.data)*/
+
+		. = ALIGN(4);
+		__btdm_data_end = ABSOLUTE(.);
+
+/*	} > d_ram*/
+	} > rom_text
+
+
+/*	.data :*/
+/*	.data (LOADADDR(.btdm_data) + SIZEOF(.btdm_data)) :*/
+/*	.data : AT (LOADADDR(.btdm_data) + SIZEOF(.btdm_data))*/
+	.data : AT (LOADADDR(.btdm_data) + SIZEOF(.btdm_data))
+	{
+		. = ALIGN(8);
+		__data_rom_start = LOADADDR(.btdm_data) + SIZEOF(.btdm_data);
+		__data_ram_start = ABSOLUTE(.);
+
+		*(.data)
+		*(.data.*)
+
+		*(.eh_frame)
+		*(.eh_frame.*)
+
+
+		*(.clib.data)
+		*(.clib.data.*)
+
+
+		*(.rtos.data)
+		*(.data.data.*)
+
+		. = ALIGN(8);
+		__data_ram_end = ABSOLUTE(.);
+
+	} > d_ram
+/*	} > rom_text*/
+
+
+/*	.flash_prog_text :*/
+/*	.flash_prog_text (LOADADDR(.data) + SIZEOF(.data)) :*/
+	.flash_prog_text : AT (LOADADDR(.data) + SIZEOF(.data))
+	{
+		. = ALIGN(4);
+		__flash_prog_rom_start = LOADADDR(.data) + SIZEOF(.data);
+		__flash_prog_ram_start = ABSOLUTE(.);
+
+/*		source/common/app_flash_program.o (.literal .text)
+		source/common/SpiFlash_W25QXX.o (.literal .text)*/
+
+		*(.flash_prog_text.literal)
+		*(.flash_prog_text.text)
+		*(.flash_prog_text)
+
+		. = ALIGN(4);
+		__flash_prog_ram_end = ABSOLUTE(.);
+/*	} > rom_text*/
+	} > i_ram
+
+
+/*	.libkernel_text :*/
+/*	.libkernel_text (LOADADDR(.flash_prog_text) + SIZEOF(.flash_prog_text)) :*/
+	.libkernel_text : AT (LOADADDR(.flash_prog_text) + SIZEOF(.flash_prog_text))
+	{
+		. = ALIGN(4);
+		__libkernel_rom_start = LOADADDR(.flash_prog_text) + SIZEOF(.flash_prog_text);
+		__libkernel_ram_start = ABSOLUTE(.);
+
+/*		libkernel.a (.literal .text)*/
+
+		*(.libkernel_text.literal)
+		*(.libkernel_text.text)
+		*(.libkernel_text)
+
+		lib/Optek_lib_freeRTOS.a (.literal .text)
+
+/*
+		source/common/xtensa_vectors.o (.literal .text)
+		source/common/xtensa_context.o (.literal .text)
+*/
+
+/*
+		source/os/threadRTOS/xtensa_vectors.o (.literal .text)
+		source/os/threadRTOS/xtensa_context.o (.literal .text)
+*/
+
+
+/*
+		source/os/freeRTOS/Xtensa/xtensa_vectors.o (.literal .text)
+		source/os/freeRTOS/Xtensa/xtensa_context.o (.literal .text)
+*/
+
+/*
+		source/os/freeRTOS/portable/XCC/Xtensa/xtensa_vectors.o (.literal .text)
+		source/os/freeRTOS/portable/XCC/Xtensa/xtensa_context.o (.literal .text)
+*/
+
+/*
+		source/common/windowspill_asm.o (.literal .text)
+*/
+
+/*
+		source/common/xtensa_timer1.o (.literal .text)
+*/
+
+		. = ALIGN(4);
+		__libkernel_ram_end = ABSOLUTE(.);
+/*	} > rom_text*/
+	} > i_ram
+
+
+/*	.btdm_text :*/
+	.btdm_text (LOADADDR(.libkernel_text) + SIZEOF(.libkernel_text)) :
+/*	.btdm_text : AT (LOADADDR(.libkernel_text) + SIZEOF(.libkernel_text))*/
+	{
+		. = ALIGN(4);
+		__TEXT_START34 = ABSOLUTE(.);
+/*
+		Debug/lib_btdm5.a (.literal .text)
+*/
+/*		/FPGA/lib_btdm/bin/Optek_HiFi3_Dev_02/Debug/lib_btdm.a (.literal .text)*/
+
+/*		../../../../lib_btdm/bin/Optek_HiFi3_Dev_02/Debug/lib_btdm.a (.literal .text)*/
+
+		. = ALIGN(4);
+		__TEXT_START34_END = ABSOLUTE(.);
+	} > rom_text
+/*	} > btdm_rom*/
+/*	} > srom*/
+
+
+
+/*	.all_text :*/
+	.all_text (LOADADDR(.btdm_text) + SIZEOF(.btdm_text)) :
+/*	.all_text : AT (LOADADDR(.btdm_text) + SIZEOF(.btdm_text))*/
+	{
+		. = ALIGN(4);
+		__all_text_rom_start = LOADADDR(.btdm_text) + SIZEOF(.btdm_text);
+		__all_text_ram_start = ABSOLUTE(.);
+
+
+		/* from libc.a and from libgcc.a */
+/*		lib/memcmp.o (.literal .text)
+		lib/memmove.o (.literal .text)
+		lib/memcpy.o (.literal .text)
+		lib/memset.o (.literal .text)
+
+
+		lib/_addsubdf3.o (.literal .text)
+		lib/_muldf3.o (.literal .text)
+		lib/_cmpdf2.o (.literal .text)
+		lib/_fixdfsi.o (.literal .text)
+		lib/_fixdfdi.o (.literal .text)
+		lib/_divdi3.o (.literal .text)
+		lib/vec_memcpy.o (.literal .text)
+		lib/vec_memset.o (.literal .text)
+		lib/softfloat_cmn_df.o (.literal .text)
+		lib/softfloat_div_df.o (.literal .text)
+
+		lib/_divsi3.o (.literal .text)
+		lib/_modsi3.o (.literal .text)
+		lib/_udivsi3.o (.literal .text)
+		lib/_umodsi3.o (.literal .text)
+		lib/_umulsidi3.o (.literal .text)
+		lib/_ashldi3.o (.literal .text)
+		lib/_floatsidf.o (.literal .text)
+		lib/softfloat_cmn.o (.literal .text)
+		lib/softfloat_cmn_div.o (.literal .text)
+*/
+
+		/*it is used by the function `datmos_downmixer_init',
+		calculate_proper_downmix_mode' and
+		datmos_downmixer_get_num_of_out_channels'*/
+		/*source/common/dpf_log.o (.literal .text)*/
+/*		lib/dpf_log.o (.literal .text)*/
+
+		KEEP(*(.init))
+		KEEP(*(.init.literal))
+
+
+/*
+		source/common/*.o (.literal .text)
+		source/hw/*.o (.literal .text)
+*/
+
+/*
+		source/os/threadRTOS/*.o (.literal .text)
+		source/os/freeRTOS/*.o (.literal .text)
+*/
+
+
+/*
+		*(.literal .text)
+*/
+
+
+/*		*(.literal .text .literal.* .text.* .stub .gnu.warning .gnu.linkonce.literal.* .gnu.linkonce.t.*.literal .gnu.linkonce.t.*)*/
+		*(.literal .text .literal.* .text.*)
+
+		KEEP(*(.init))
+		KEEP(*(.init.literal))
+
+
+/*		*(.eh_frame.literal)
+		*(.eh_frame.text)*.
+*/
+
+		. = ALIGN(4);
+		__all_text_ram_end  = ABSOLUTE(.);
+	
+/*	} > i_ram*/
+	} > rom_text
+
+
+/*	.internal_ram_1_text :*/
+	.internal_ram_1_text : AT (LOADADDR(.all_text) + SIZEOF(.all_text))
+	{
+		. = ALIGN(8);
+		__internal_ram_1_rom_start = LOADADDR(.all_text) + SIZEOF(.all_text);
+		__internal_ram_1_ram_start = ABSOLUTE(.);
+
+		*(.internal_ram_1_text.literal)
+		*(.internal_ram_1_text.text)
+		*(.internal_ram_1_text)
+
+/*		*(.eh_frame.literal)
+		*(.eh_frame.text)
+*/
+
+
+/*		*(.dsp_critical_sec_text.literal)
+		*(.dsp_critical_sec_text.text)
+		*(.dsp_critical_sec_text)
+*/
+
+		. = ALIGN(8);
+		__internal_ram_1_ram_end = ABSOLUTE(.);
+
+	} > i_ram
+/*	} > rom_1*/
+
+
+	.btdm_bss (NOLOAD):
+	{
+		. = ALIGN(4);
+/*
+		Debug/lib_btdm5.a (.bss)
+*/
+/*		/FPGA/lib_btdm/bin/Optek_HiFi3_Dev_02/Debug/lib_btdm.a (.bss)*/
+
+/*		../../../../lib_btdm/bin/Optek_HiFi3_Dev_02/Debug/lib_btdm.a (.bss)*/
+
+		. = ALIGN(4);
+/*	} > btdm_bss_seg*/
+	} > d_ram
+
+
+	.codec_memory_bss (NOLOAD) :
+	{
+		. = ALIGN (16);
+
+		*(.codec_memory_bss)
+		*(.codec_memory_bss.*)
+
+		. = ALIGN (16);
+	} > codec_memory_bss
+
+
+	.all_bss (NOLOAD):
+	{
+		. = ALIGN (16);
+		_bss_start = ABSOLUTE(.);
+
+		*(.bss)
+		*(.bss.*)
+
+		. = ALIGN (16);
+		_bss_end = ABSOLUTE(.);
+		
+	} > d_ram
+/*	} > all_bss*/
+/*	} > rom_text*/
+
+
+	.clib_bss (NOLOAD):
+	{
+		. = ALIGN (16);
+		_clib_bss_start = ABSOLUTE(.);
+
+		*(.text._init_reent_bss)
+		*(.text._init_reent_bss.*)
+
+		*(COMMON)
+		*(.clib.bss)
+		*(.clib.bss*)
+	    
+		*(.clib.percpu.bss)
+		*(.clib.percpu.bss*)
+
+		*(.rtos.percpu.bss)
+		*(.rtos.percpu.bss*)
+
+		*(.rtos.bss)
+		*(.rtos.bss*)
+
+		. = ALIGN (16);
+		_clib_bss_end = ABSOLUTE(.);
+		_end = ABSOLUTE(.);
+
+	} > d_ram
+/*	} > all_bss*/
+/*	} > rom_text*/
+
+
+/*	_heap_sentry = 0x3fe20000;*/
+/*	_heap_sentry = 0x70180000;*/
+	_heap_sentry = 0x70FF0000;
+
+	__stack = ORIGIN(d_ram_stack) + LENGTH(d_ram_stack);
+	/*__stack = 0x70200000;*/
+
+	VECTOR_BASE_ADDR = ORIGIN(i_ram_vector);
+}
+
+
+
+CODEC_MEMORY_START            = ORIGIN(d_ram_codec);
+
+SFLASH_START_ADDR             = ORIGIN(rom_boot);
+
+I_ROM_START_ADDR              =  ORIGIN(i_rom);
+
+D_ROM_START_ADDR              =  ORIGIN(d_rom);
+

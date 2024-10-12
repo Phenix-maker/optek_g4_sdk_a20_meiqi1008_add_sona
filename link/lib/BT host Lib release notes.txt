@@ -1,0 +1,162 @@
+BT host Lib release notes
+
+*********************************************************************************************************
+Ver:V1.0.5 and V1.0.6
+Date:20240407
+****************************************
+fix(bt tx):modify device's calss filter to fix issue that some device cann't been find
+fix(hfp):modify rfcomm about credits to fix incompatiblity issue  
+refactor(rfomm init):clear user data when creat new rfcomm chan
+refactor(hfp):move hfp ag profile code to host lib
+feat(bt conn):add function to get device's name from the connected devices table
+
+*********************************************************************************************************
+Ver:V1.0.4
+Date:20240401
+****************************************
+fix(tx):modify device's class of search hp to fix can not find tws headphone
+
+*********************************************************************************************************
+Ver:V1.0.3
+Date:20240328
+****************************************
+refactor(tx):refactor stream status change in tx mode
+
+*********************************************************************************************************
+Ver:V1.0.2
+Date:20240129
+****************************************
+feat(a2dp):add new feature a2dp source
+
+
+*********************************************************************************************************
+Ver:V1.0.1
+Date:20240120
+****************************************
+for optek g4 soc
+
+****************************************
+
+
+********************************************************************************************************************************************
+<--optek g4 version 
+
+optek g3 version -->
+*******************************************
+
+
+V1.58 on November 11 2022
+	feat(page):add below new function 
+	/* timeout: unit:0.628ms*/
+	void bt_hci_page_timeout (U16 timeout)
+
+
+V1.57.A on September 30 2022
+	change(scan parameter):change page and inquiry scan parameter to adapter to optek link
+
+		old parameter will cause bt dead when bt page and inquiry scan and optek link work in the same time
+		new parameter switch page and inquiry scan type to standard and decrease interval,maybe the scan performance is similar to the old parameter
+
+		This is release version V1.57.A
+
+V1.57 on April 26 2022
+	fix(connection):fix a issue about with JBL tws heaphone connection  
+		only finish a record of register_id_record_data 
+		This is release version V1.57
+
+V1.56 on december 17 2021
+	fix(sdp):fix an issue about calculation of continuation bytes in sdp profile
+
+	fix(reconnection):optimize a reconnection problem on HFP
+		modified the client part of the sdp
+		This is release version V1.56
+
+V1.55 on december 14 2021
+	
+	fix(rfcomm):fix a bug about credit base flow control(cfc)
+		this bug cause rfcomm disconnect because credit no update.
+		test condition:1,adjust volume  in phone when phone is calling out  2,use iphone
+
+
+V1.54 on September 28 2021
+	style(optek link):Delete useless function calls about optek link 1.0
+
+V1.53 on September 22 2021
+	fix(bt tx): disable two tx chan of avdtp(cause system reset)
+
+V1.52 on September 13 2021
+	feat(hfp profile): support new feature hfp ag
+	fix(bt tx): fix a rfcomm incompatibility problem--cfc disable->cfc unknow
+	refactor(bt host lib mask): refoctor bt host lib mask
+	refactor(sdp database): const to registration mechanism
+	
+	
+V1.51 on january 27 2021
+	class of device and service get from app
+V1.50 on january 25 2021
+	retrans_effort of setup sync parameter change to 0xff(don't care)
+
+V1.48 on january 20 2021
+	fixed a mem malloc free issue
+	disable d2dp src when it no use
+
+V1.47 on december 31 2020
+	fixed a link loss issue.(for ios delete pair when connection is ativitic)
+
+V1.46 on december 11 2020
+	modified PBAP mask.
+
+V1.45 on november 02  2020
+	add hfp cvsd codec interface.
+
+V1.44 on september 16 2020
+	add a new function for headphone inquiry with inquiry num and timeout param.
+
+/*
+num:search num
+timeout:search timeout,unit is 1.28s
+*/
+void uiBtHCI_set_inquiry_w_num_and_to(U8 num,U8 timeout)
+
+V1.43 on september 16 2020
+	creat avrcp timeout fast.
+
+V1.42 on september 16 2020
+	help to fixed optek link scan mode issue.
+
+V1.41 on september 14 2020
+	support new optek link.
+
+V1.40 on september 12 2020
+	add bt host mask BT_APP_NEED_SLAVE to switch role to slave.
+
+V1.39 on August 25 2020
+	launch avdtp when remote device not start it.
+
+V1.38 on August 21 2020
+	modified one Update hp macid issue,this issue maybe cause soc reset
+
+V1.37 on August 12 2020
+	disable ESCO LINK packetype (ESCO_3EV3, ESCO_2EV5,  ESCO_3EV5) for hfp AG application
+
+V1.36 on August 4 2020
+	inquiry and inquiry response change to extended inquiry and extended  inquiry response
+	add function --  void uiBtHCI_relink_cancel(void)//cancel the relink action
+	modified interface of hci log
+	notify a2dp status to application use funcion (void a2dp_status_change_notify(U8 status))
+	Update hp macid move to link key receive evt (same as mobile phone macid update)
+	modified link loss judge
+
+V1.25 on March 3 27, 2020
+	//cp.retrans_effort = 0xff;		//don't care
+	->cp.retrans_effort = 0x02;
+
+V1.22 on March 3 19, 2020
+	sdk compiler successfully
+
+V1.21 on March 3 14, 2020
+	change max bitpool from 48 to 53
+	chage the internal mem to bt_host_internal_ram_text
+
+V1.20 on March 3 12, 2020
+Init release

@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<BuildTarget tool="xtensa" version="1.0">
+    <BuildSettings>
+        <BaseSettings path="project">
+            <PreprocessorOptions>
+                <StringListMapOptions>
+                    <StringListMapEntry>
+                        <key>Includes</key>
+                        <value flag="-I" inheritance="donotinherit"/>
+                    </StringListMapEntry>
+                </StringListMapOptions>
+                <KeyValueListMapOptions>
+                    <KeyValueListMapEntry>
+                        <key>Defines</key>
+                        <value flag="-D" inheritance="donotinherit">
+                            <ListEntry key="DLB_BITBUF_USE_READ_API" value="1"/>
+                            <ListEntry key="DLB_BITBUF_USE_WRITE_API" value="1"/>
+                            <ListEntry key="DLB_INTRINSICS_NEW_NAMES" value="1"/>
+                            <ListEntry key="DLB_WAVE_IEEE_754" value="1"/>
+                            <ListEntry key="EVO_ENABLE_PCM_HASHING" value="0"/>
+                            <ListEntry key="_GNU_SOURCE" value="1"/>
+                            <ListEntry key="OAMDI_USE_DECODE_API" value="1"/>
+                            <ListEntry key="OAMDI_USE_ENCODE_API" value="1"/>
+                            <ListEntry key="EVO_ENABLE_PCM_HASHING" value="0"/>
+                            <ListEntry key="SYMBOL_PREFIX" value="datmos_ht"/>
+                            <ListEntry key="DLB_GETPARAM_DOUBLE" value="1"/>
+                            <ListEntry key="DLB_GETPARAM_MAXLEN" value="4096"/>
+                            <ListEntry key="DLB_GETPARAM_MAX_SWITCHES" value="40"/>
+                            <ListEntry key="DLB_GETPARAM_TIMESTAMP" value="1"/>
+                            <ListEntry key="DPF_NO_OS" value=""/>
+                            <ListEntry key="DLB_BACKEND_HIFI3_16X32" value="1"/>
+                            <ListEntry key="STOP_FRAME_IMPLEMENTATION" value=""/>
+                            <ListEntry key="XA_ERROR_HANDLER" value=""/>
+                            <ListEntry key="SYMBOL_MANGLING" value="dolby_ha1"/>
+                            <ListEntry key="NDEBUG" value="1"/>
+                            <ListEntry key="OTK_HW_VERSION_ENABLE" value=""/>
+                        </value>
+                    </KeyValueListMapEntry>
+                </KeyValueListMapOptions>
+            </PreprocessorOptions>
+            <CompilerOptions>
+                <SingleFlagMapOptions>
+                    <SingleFlagMapEntry>
+                        <key>SignCharType</key>
+                        <value flag="-fsigned-char" use="true"/>
+                    </SingleFlagMapEntry>
+                    <SingleFlagMapEntry>
+                        <key>WarningSetting</key>
+                        <value flag="-Wall" use="true"/>
+                    </SingleFlagMapEntry>
+                    <SingleFlagMapEntry>
+                        <key>ExtraWarning</key>
+                        <value flag="-Wextra" use="false"/>
+                    </SingleFlagMapEntry>
+                    <SingleFlagMapEntry>
+                        <key>CompilerEnableLongCall</key>
+                        <value flag="-mlongcalls" use="true"/>
+                    </SingleFlagMapEntry>
+                    <SingleFlagMapEntry>
+                        <key>CompilerVariant</key>
+                        <value flag="none" use="true"/>
+                    </SingleFlagMapEntry>
+                </SingleFlagMapOptions>
+                <FlagValueMapOptions>
+                    <FlagValueMapEntry>
+                        <key>Debug</key>
+                        <value level="-3" flag="-g" use="true"/>
+                    </FlagValueMapEntry>
+                    <FlagValueMapEntry>
+                        <key>Optimization</key>
+                        <value level="2" flag="-O" use="true"/>
+                    </FlagValueMapEntry>
+                </FlagValueMapOptions>
+            </CompilerOptions>
+            <AssemblerOptions>
+                <SingleFlagMapOptions>
+                    <SingleFlagMapEntry>
+                        <key>AssemblerLongCall</key>
+                        <value flag="--longcalls" use="true"/>
+                    </SingleFlagMapEntry>
+                    <SingleFlagMapEntry>
+                        <key>AssemblerIncludeDebug</key>
+                        <value flag="--gdwarf-2" use="true"/>
+                    </SingleFlagMapEntry>
+                </SingleFlagMapOptions>
+            </AssemblerOptions>
+            <LinkerOptions>
+                <StringListMapOptions>
+                    <StringListMapEntry>
+                        <key>LibrarySearchPath</key>
+                        <value flag="-L" inheritance="prepend">
+                            <ListEntry>$(PROJECT_HOME)\link\lib</ListEntry>
+                            <ListEntry>${workspace_loc}\lib_btdm5\bin\Optek_HiFi3_Dev_05</ListEntry>
+                        </value>
+                    </StringListMapEntry>
+                    <StringListMapEntry>
+                        <key>LinkerAdditionalOptions</key>
+                        <value flag="" inheritance="inherit">
+                            <ListEntry>-Map map.txt -nostdlib -L$(PROJECT_HOME)\link\lib </ListEntry>
+                        </value>
+                    </StringListMapEntry>
+                </StringListMapOptions>
+                <LinkerSupport custom="true" key="-mlsp=" value="..\..\..\link"/>
+            </LinkerOptions>
+        </BaseSettings>
+        <OverriddenSettings>
+            <OverriddenSettingsEntry>
+                <key>source/os/freeRTOS/croutine.c</key>
+                <value path="source/os/freeRTOS/croutine.c">
+                    <CompilerOptions>
+                        <FlagValueMapOptions>
+                            <FlagValueMapEntry>
+<key>Optimization</key>
+<value level="2" flag="-O" use="true"/>
+                            </FlagValueMapEntry>
+                        </FlagValueMapOptions>
+                    </CompilerOptions>
+                </value>
+            </OverriddenSettingsEntry>
+            <OverriddenSettingsEntry>
+                <key>source/os/freeRTOS/queue.c</key>
+                <value path="source/os/freeRTOS/queue.c">
+                    <CompilerOptions>
+                        <FlagValueMapOptions>
+                            <FlagValueMapEntry>
+<key>Optimization</key>
+<value level="2" flag="-O" use="true"/>
+                            </FlagValueMapEntry>
+                        </FlagValueMapOptions>
+                    </CompilerOptions>
+                </value>
+            </OverriddenSettingsEntry>
+            <OverriddenSettingsEntry>
+                <key>source/common/reset.S</key>
+                <value path="source/common/reset.S">
+                    <AssemblerOptions>
+                        <SingleFlagMapOptions>
+                            <SingleFlagMapEntry>
+<key>AssemblerPlaceLiteralsInText</key>
+<value flag="--text-section-literals" use="true"/>
+                            </SingleFlagMapEntry>
+                        </SingleFlagMapOptions>
+                    </AssemblerOptions>
+                </value>
+            </OverriddenSettingsEntry>
+            <OverriddenSettingsEntry>
+                <key>source/os/freeRTOS/event_groups.c</key>
+                <value path="source/os/freeRTOS/event_groups.c">
+                    <CompilerOptions>
+                        <FlagValueMapOptions>
+                            <FlagValueMapEntry>
+<key>Optimization</key>
+<value level="2" flag="-O" use="true"/>
+                            </FlagValueMapEntry>
+                        </FlagValueMapOptions>
+                    </CompilerOptions>
+                </value>
+            </OverriddenSettingsEntry>
+            <OverriddenSettingsEntry>
+                <key>source/common/flash_boot.c</key>
+                <value path="source/common/flash_boot.c">
+                    <CompilerOptions>
+                        <SingleFlagMapOptions>
+                            <SingleFlagMapEntry>
+<key>WarningAsError</key>
+<value flag="-Werror" use="false"/>
+                            </SingleFlagMapEntry>
+                        </SingleFlagMapOptions>
+                    </CompilerOptions>
+                </value>
+            </OverriddenSettingsEntry>
+            <OverriddenSettingsEntry>
+                <key>source/os/freeRTOS/tasks.c</key>
+                <value path="source/os/freeRTOS/tasks.c">
+                    <CompilerOptions>
+                        <FlagValueMapOptions>
+                            <FlagValueMapEntry>
+<key>Optimization</key>
+<value level="2" flag="-O" use="true"/>
+                            </FlagValueMapEntry>
+                        </FlagValueMapOptions>
+                    </CompilerOptions>
+                </value>
+            </OverriddenSettingsEntry>
+            <OverriddenSettingsEntry>
+                <key>source/common/reset_jump_dsp.S</key>
+                <value path="source/common/reset_jump_dsp.S">
+                    <AssemblerOptions>
+                        <SingleFlagMapOptions>
+                            <SingleFlagMapEntry>
+<key>AssemblerPlaceLiteralsInText</key>
+<value flag="--text-section-literals" use="true"/>
+                            </SingleFlagMapEntry>
+                        </SingleFlagMapOptions>
+                    </AssemblerOptions>
+                </value>
+            </OverriddenSettingsEntry>
+            <OverriddenSettingsEntry>
+                <key>source/os/freeRTOS/list.c</key>
+                <value path="source/os/freeRTOS/list.c">
+                    <CompilerOptions>
+                        <FlagValueMapOptions>
+                            <FlagValueMapEntry>
+<key>Optimization</key>
+<value level="2" flag="-O" use="true"/>
+                            </FlagValueMapEntry>
+                        </FlagValueMapOptions>
+                    </CompilerOptions>
+                </value>
+            </OverriddenSettingsEntry>
+        </OverriddenSettings>
+    </BuildSettings>
+</BuildTarget>

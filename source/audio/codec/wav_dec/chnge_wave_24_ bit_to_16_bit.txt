@@ -1,0 +1,156 @@
+/****************************/
+//change wave 24-bit to 16-bit
+/****************************/
+
+app_wave_dec_init
+xa wav dec int enter
+
+mem used:0x10
+mem used:0x2410
+mem used:0x2420
+mem used:0x2430
+wav_format = 1
+wav_blockAlign = 6
+wav_Channels = 2
+wav_samp_rate = 48000
+wav_byterate = 288000
+wav_sample_bits = 24
+Wave Header ok
+
+Channels = 2
+samp_freq = 48000
+bitrate = 288000
+Total
+ Time = 645
+pcm_wd_sz = 24
+
+app_audio_clock_freq_setting:48000
+
+hw_audio_pll_clk_fre_set
+
+file len:185974496
+
+music len:185974452
+
+wav init ok
+mp3 init success
+
+codec dec start
+
+Codec enter
+
+WAV decode
+WAV 24
+
+dec byte slice_len:1536, slice:1
+
+
+
+
+/****************************/
+//change wave 24-bit to 16-bit
+/****************************/
+
+app_wave_dec_init
+xa wav dec int enter
+
+mem used:0x10
+mem used:0x2410
+mem used:0x2420
+mem used:0x2430
+wav_format = 1
+wav_blockAlign = 6
+wav_Channels = 2
+wav_samp_rate = 96000
+wav_byterate = 576000
+wav_sample_bits = 24
+Wave Header ok
+
+Channels = 2
+samp_freq = 96000
+bitrate = 576000
+Total Time = 10
+pcm_wd_sz = 24
+
+app_audio_clock_freq_setting:48000
+
+hw_audio_pll_clk_fre_set
+
+file l
+en:5760044
+
+music len:5760000
+
+wav init ok
+mp3 init success
+
+codec dec start
+
+Codec enter
+
+WAV decode
+WAV 24
+
+key down:2
+
+window:0x70072324
+
+UI key down:2
+
+dec byte slice_len:1536, slice:1
+
+
+
+/****************************/
+//change wave 24-bit to 16-bit
+/****************************/
+
+app_wave_dec_init
+xa wav dec int enter
+
+mem used:0x10
+mem used:0x2410
+mem used:0x2420
+mem used:0x2430
+wav_format = 1
+wav_blockAlign = 6
+wav_Channels = 2
+wav_samp_rate = 192000
+wav_byterate = 1152000
+wav_sampl
+e_bits = 24
+Wave Header ok
+
+Channels = 2
+samp_freq = 192000
+bitrate = 1152000
+Total Time = 2
+33
+pcm_wd_sz = 24
+
+app_audio_clock_freq_settin
+g:48000
+
+hw_audio_pll_clk_fre_set
+
+file len:269189168
+
+music len:269189124
+
+wav init ok
+mp3 init success
+
+codec dec start
+
+Codec enter
+
+WAV decode
+WAV 24
+
+key down:2
+
+window:0x70072324
+
+UI key down:2
+
+dec byte slice_len:1536, slice:1

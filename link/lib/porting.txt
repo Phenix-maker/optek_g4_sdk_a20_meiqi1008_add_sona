@@ -1,0 +1,261 @@
+
+*********************************************************************************************************
+Ver:V1.0.13
+Date:20240419
+****************************************
+fix(bt relink):fix a relink issue with iphone 15
+In addition, the sscan and strain functions of csb are comoplited
+
+*********************************************************************************************************
+Ver:V1.0.12
+Date:20240407
+****************************************
+fix(sco):fix two sco issue
+
+1, no interrupt for sco
+2, sco path is not cerrect
+
+*********************************************************************************************************
+Ver:V1.0.10
+Date:20240227
+****************************************
+for release
+
+*********************************************************************************************************
+Ver:V1.0.f
+Date:20240120
+****************************************
+disable 3m tx and rx
+add rwip schedule callback
+
+*********************************************************************************************************
+Ver:V1.0.e
+Date:20230712
+****************************************
+for modelsim test
+
+*********************************************************************************************************
+Ver:V1.0.d
+Date:20230529
+****************************************
+ble txrx test set to infinite
+
+*********************************************************************************************************
+Ver:V1.0.c
+Date:20230529
+****************************************
+add two function for ble txrx test
+enable edr 2m
+disable sniffer
+modified txrxpwrup time
+
+
+porting:
+1,
+int hci_le_rx_test_v1_start_w_param(struct lld_test_params *test_params)
+reference input params:
+            struct lld_test_params test_params;
+            test_params.type = 0;
+            test_params.channel = param->rx_channel;
+            test_params.phy = PHY_1MBPS_BIT;
+            test_params.cte_len = NO_CTE;
+
+int hci_le_tx_test_v1_start_w_param(struct lld_test_params *test_params)
+reference input params:
+            struct lld_test_params test_params;
+            test_params.type = 1;
+            test_params.channel = 1;
+            test_params.data_len = 10;
+            test_params.payload = PAYL_PSEUDO_RAND_9;
+            test_params.phy = PHY_1MBPS_BIT;
+            test_params.cte_len = NO_CTE;
+            test_params.tx_pwr_lvl = MAX_TX_PWR_LVL;
+
+
+
+structure and defining:
+
+/// Test mode parameters structure
+struct lld_test_params
+{
+    /// Type (0: RX | 1: TX)
+    uint8_t type;
+
+    /// RF channel, N = (F - 2402) / 2
+    uint8_t channel;
+
+    /// Length of test data
+    uint8_t data_len;
+
+    /**
+     * Packet payload
+     * 0x00 PRBS9 sequence "11111111100000111101" (in transmission order) as described in [Vol 6] Part F, Section 4.1.5
+     * 0x01 Repeated "11110000" (in transmission order) sequence as described in [Vol 6] Part F, Section 4.1.5
+     * 0x02 Repeated "10101010" (in transmission order) sequence as described in [Vol 6] Part F, Section 4.1.5
+     * 0x03 PRBS15 sequence as described in [Vol 6] Part F, Section 4.1.5
+     * 0x04 Repeated "11111111" (in transmission order) sequence
+     * 0x05 Repeated "00000000" (in transmission order) sequence
+     * 0x06 Repeated "00001111" (in transmission order) sequence
+     * 0x07 Repeated "01010101" (in transmission order) sequence
+     * 0x08-0xFF Reserved for future use
+     */
+    uint8_t payload;
+
+    /**
+     * Tx/Rx PHY
+     * For Tx PHY:
+     * 0x00 Reserved for future use
+     * 0x01 LE 1M PHY
+     * 0x02 LE 2M PHY
+     * 0x03 LE Coded PHY with S=8 data coding
+     * 0x04 LE Coded PHY with S=2 data coding
+     * 0x05-0xFF Reserved for future use
+     * For Rx PHY:
+     * 0x00 Reserved for future use
+     * 0x01 LE 1M PHY
+     * 0x02 LE 2M PHY
+     * 0x03 LE Coded PHY
+     * 0x04-0xFF Reserved for future use
+     */
+    uint8_t phy;
+
+    /**
+     * CTE length
+     * 0x00 No Constant Tone Extension
+     * 0x02 - 0x14 Length of the Constant Tone Extension in 8 us units
+     * All other values Reserved for future use
+     */
+    uint8_t cte_len;
+
+    /**
+     * CTE type
+     * 0x00 AoA Constant Tone Extension
+     * 0x01 AoD Constant Tone Extension with 1 us slots
+     * 0x02 AoD Constant Tone Extension with 2 us slots
+     * All other values Reserved for future use
+     */
+    uint8_t cte_type;
+
+    /**
+     * Slot durations
+     * 0x01 Switching and sampling slots are 1 us each
+     * 0x02 Switching and sampling slots are 2 us each
+     * All other values Reserved for future use
+     */
+    uint8_t slot_dur;
+
+    /**
+     * Length of switching pattern
+     * 0x02 - 0x4B The number of Antenna IDs in the pattern
+     * All other values Reserved for future use
+     */
+    uint8_t switching_pattern_len;
+
+    /// Antenna IDs
+    uint8_t antenna_id[BLE_MAX_SW_PAT_LEN];
+
+    /// Transmit power level in dBm (0x7E: minimum | 0x7F: maximum | range: -127 to +20)
+    int8_t  tx_pwr_lvl;
+
+};
+
+/// Specify what PHY Host prefers to use for RX or TX HCI:7.8.48 / HCI:7.8.49
+enum le_phy_mask
+{
+    /// The Host prefers to use the LE 1M transmitter/receiver PHY (possibly among others)
+    PHY_1MBPS_BIT      = (1<<0),
+    PHY_1MBPS_POS      = (0),
+    /// The Host prefers to use the LE 2M transmitter/receiver PHY (possibly among others)
+    PHY_2MBPS_BIT      = (1<<1),
+    PHY_2MBPS_POS      = (1),
+    /// The Host prefers to use the LE Coded transmitter/receiver PHY (possibly among others)
+    PHY_CODED_BIT      = (1<<2),
+    PHY_CODED_POS      = (2),
+    /// The Host prefers to use the LE Coded transmitter/receiver PHY (possibly among others)
+    PHY_ALL        = (PHY_1MBPS_BIT | PHY_2MBPS_BIT | PHY_CODED_BIT),
+};
+
+/// CTE length (in number of 8us periods)
+#define NO_CTE                 (0)
+#define CTE_LEN_MIN            (0x02)
+#define CTE_LEN_MAX            (0x14)
+
+/// Test mode event states
+enum TEST_TYPE
+{
+    TEST_RX,
+    TEST_TX,
+};
+
+///Transmitter test Packet Payload Type
+enum
+{
+    ///Pseudo-random 9 TX test payload type
+    PAYL_PSEUDO_RAND_9            = 0x00,
+    ///11110000 TX test payload type
+    PAYL_11110000,
+    ///10101010 TX test payload type
+    PAYL_10101010,
+    ///Pseudo-random 15 TX test payload type
+    PAYL_PSEUDO_RAND_15,
+    ///All 1s TX test payload type
+    PAYL_ALL_1,
+    ///All 0s TX test payload type
+    PAYL_ALL_0,
+    ///00001111 TX test payload type
+    PAYL_00001111,
+    ///01010101 TX test payload type
+    PAYL_01010101,
+};
+
+*********************************************************************************************************
+Ver:V1.0.9
+Date:20230525
+****************************************
+
+release notes
+1, add new feature power controll
+
+porting:
+struct pwr_cntrl_stru{
+  uint8_t pwr_min;
+  uint8_t pwr_max;
+  uint8_t pwr_step;
+  uint8_t pwr_msk;
+};
+
+/**
+ ****************************************************************************************
+ * @brief power control setting, note that call after rf initialation
+ *
+ * @param[in] pa_sel         PA selection:1->pa1 max 13dbm 0->pa0 max 4dbm  default:0
+ * @param[in] cntl           power control settings default:{0xf, 0x10, 0x7f, 0x7f}
+ *
+ * @return  NULL
+ ****************************************************************************************
+ */
+void pwr_cntrl_set(uint8_t pa_sel ,struct pwr_cntrl_stru *cntrl)
+
+
+*********************************************************************************************************
+
+
+
+rx
+            /*
+            struct ld_test_params test_params;
+            test_params.type = 0;
+            test_params.channel = 1;
+            test_params.pkt_type= DH1_TYPE;
+            */
+
+int hci_vs_rx_test_start_w_param(struct ld_test_params *test_params)
+
+//tx
+            test_params->type = 1;
+            test_params->channel = 2;
+            test_params->data_len = 20;
+            test_params->payload = PAYL_PSEUDO_RAND_9;
+            test_params->pkt_type = DTM_3DH1;//DTM_2DH1;//6;//DTM_2DH1;//DH5_2_TYPE;
+            test_params->tx_pwr_lvl = MAX_TX_PWR_LVL;
+int hci_vs_tx_test_start_param(struct ld_test_params *test_params)
