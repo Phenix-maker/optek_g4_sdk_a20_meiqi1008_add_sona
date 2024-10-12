@@ -63,7 +63,7 @@ const char app_time_date[] = __TIME__;
 
 // const char app_version[] = "0.0.0924_22dbu_120W";
 
-const char app_version[] = "0.0.1012_sona_with_101102_and_updata_class_H";
+const char app_version[] = "0.0.1011_sona_with_101102_and_updata_class_H";
 
 const char *app_version_get(void)
 {
